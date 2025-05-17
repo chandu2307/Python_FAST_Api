@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hospital Management System - Login/Signup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    #bg-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -10;
+      opacity: 0.9;
+    }
+
+    #auth-container {
+      max-width: 400px;
+      width: 100%;
+      padding: 2.5rem 2rem;
+      color: #333;
+    }
+
+    .glass {
+      background-color: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    @media screen and (max-width: 640px) {
+      #app-container {
+        margin: 1rem;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Replace the path below with a valid image path or use a hosted image URL -->
+  <img id="bg-image" src="C:\Users\admin\Desktop\Python_FAST_Api\hospital_management\frontend\media\successful-medical-team.jpg?auto=format&fit=crop&w=1950&q=80" alt="Background" />
+
+  <div id="auth-container" role="main" aria-labelledby="form-title" class="glass p-8 space-y-6">
+
+    <h1 id="form-title" class="text-3xl font-bold mb-6 text-center text-white drop-shadow-lg">Hospital Management System</h1>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="space-y-5" aria-label="Login Form">
+      <input type="text" id="loginUsername" placeholder="Username" required
+        class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" />
+      <input type="password" id="loginPassword" placeholder="Password" required
+        class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" />
+      <button type="submit"
+        class="w-full py-3 bg-purple-600 text-white rounded-md font-semibold hover:bg-purple-700 transition-colors">Login</button>
+    </form>
+
+    <!-- Signup Form -->
+    <form id="signupForm" class="space-y-5 hidden" aria-label="Signup Form">
+      <input type="text" id="signupUsername" placeholder="Username" required
+        class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" />
+      <input type="password" id="signupPassword" placeholder="Password" required
+        class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" />
+      <input type="text" id="signupFullName" placeholder="Full Name" required
+        class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" />
+      <button type="submit"
+        class="w-full py-3 bg-purple-600 text-white rounded-md font-semibold hover:bg-purple-700 transition-colors">Sign Up</button>
+    </form>
+
+    <!-- Toggle Login/Signup -->
+    <p class="mt-6 text-center text-white">
+      <span id="toggleText">Don't have an account?</span>
+      <button id="toggleBtn" class="text-white font-semibold underline focus:outline-none" aria-label="Switch to Signup">Sign Up</button>
+    </p>
+
+    <!-- Message -->
+    <p id="message" class="mt-4 text-center text-red-200 font-medium" role="alert" aria-live="assertive"></p>
+
+    <!-- Role-based UI Content -->
+    <div id="roleContent" class="mt-6 hidden">
+      <h2 class="text-xl font-semibold mb-2 text-white">Dashboard</h2>
+
+      <div id="adminPanel" class="hidden p-4 mb-3 bg-purple-200 rounded">🔧 <strong>Admin Controls:</strong> Manage Users, Reports</div>
+      <div id="doctorPanel" class="hidden p-4 mb-3 bg-green-200 rounded">🩺 <strong>Doctor Panel:</strong> View Patients, Appointments</div>
+      <div id="patientPanel" class="hidden p-4 mb-3 bg-blue-200 rounded">👤 <strong>Patient Panel:</strong> View Your Medical Records</div>
+
+      <button id="logoutBtn" class="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">Logout</button>
+    </div>
+
+  </div>
+
+<script>
+  const apiBase = 'http://127.0.0.1:8000'; // Change to your API URL
+
+  const loginForm = document.getElementById('loginForm');
+  const signupForm = document.getElementById('signupForm');
+  const toggleBtn = document.getElementById('toggleBtn');
+  const toggleText = document.getElementById('toggleText');
+  const message = document.getElementById('message');
+
+  // Role UI elements
+  const roleContent = document.getElementById('roleContent');
+  const adminPanel = document.getElementById('adminPanel');
+  const doctorPanel = document.getElementById('doctorPanel');
+  const patientPanel = document.getElementById('patientPanel');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  toggleBtn.addEventListener('click', () => {
+    message.textContent = '';
+    if (loginForm.classList.contains('hidden')) {
+      signupForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      toggleText.textContent = "Don't have an account?";
+      toggleBtn.textContent = "Sign Up";
+      toggleBtn.setAttribute('aria-label', 'Switch to Signup');
+    } else {
+      loginForm.classList.add('hidden');
+      signupForm.classList.remove('hidden');
+      toggleText.textContent = "Already have an account?";
+      toggleBtn.textContent = "Login";
+      toggleBtn.setAttribute('aria-label', 'Switch to Login');
+    }
+  });
+
+  function parseJwt(token) {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function renderRoleBasedUI() {
+    const role = localStorage.getItem('user_role');
+    if (!role) return;
+
+    loginForm.style.display = 'none';
+    signupForm.style.display = 'none';
+    toggleBtn.style.display = 'none';
+    toggleText.style.display = 'none';
+    roleContent.classList.remove('hidden');
+
+    adminPanel.style.display = (role === 'admin') ? 'block' : 'none';
+    doctorPanel.style.display = (role === 'doctor') ? 'block' : 'none';
+    patientPanel.style.display = (role === 'patient') ? 'block' : 'none';
+  }
+
+  logoutBtn.onclick = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_role');
+    roleContent.classList.add('hidden');
+    loginForm.style.display = 'block';
+    toggleBtn.style.display = 'inline-block';
+    toggleText.style.display = 'inline';
+    message.textContent = '';
+  };
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    message.textContent = '';
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+
+    if (!username || !password) {
+      message.style.color = 'red';
+      message.textContent = 'Please fill all fields.';
+      return;
+    }
+
+    try {
+      const res = await fetch(`${apiBase}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ username, password }),
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.detail || 'Login failed');
+      }
+      const data = await res.json();
+      localStorage.setItem('access_token', data.access_token);
+
+      const payload = parseJwt(data.access_token);
+      if (payload && payload.role) {
+        localStorage.setItem('user_role', payload.role);
+      } else {
+        localStorage.setItem('user_role', 'patient');
+      }
+
+      message.style.color = 'lightgreen';
+      message.textContent = 'Login successful!';
+      renderRoleBasedUI();
+
+    } catch (err) {
+      message.style.color = 'red';
+      message.textContent = err.message;
+    }
+  });
+
+  signupForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    message.textContent = '';
+    const username = document.getElementById('signupUsername').value.trim();
+    const password = document.getElementById('signupPassword').value.trim();
+    const full_name = document.getElementById('signupFullName').value.trim();
+
+    if (!username || !password || !full_name) {
+      message.style.color = 'red';
+      message.textContent = 'Please fill all fields.';
+      return;
+    }
+
+    try {
+      const res = await fetch(`${apiBase}/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, full_name }),
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.detail || 'Signup failed');
+      }
+      message.style.color = 'lightgreen';
+      message.textContent = 'Signup successful! You can now login.';
+      toggleBtn.click();
+    } catch (err) {
+      message.style.color = 'red';
+      message.textContent = err.message;
+    }
+  });
+
+  window.onload = () => {
+    const token = localStorage.getItem('access_token');
+    if (token) renderRoleBasedUI();
+  };
+</script>
+
+</body>
+</html>
