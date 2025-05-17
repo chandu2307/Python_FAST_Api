@@ -3,7 +3,7 @@ Hands-on Practice Fast API Python
 
 First Project : Weather Forcast
 
-![Weather Forcast APP](weather_forcast\app_workflow\diagram.png)
+![Weather Forcast APP](weather_forcast/app_workflow/diagram.png)
 
 ========================================================
 Second Project : Hospital Management System (Using JWT Auth login , signup ) ---> in-progress
