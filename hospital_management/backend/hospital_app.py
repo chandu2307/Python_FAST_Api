@@ -7,6 +7,7 @@ from fastapi import (
     HTTPException , 
     status
 )
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from hospital_management.backend import (
@@ -29,6 +30,15 @@ app = FastAPI(
         description="APIs for Hospital Management System",
         version="beta"
     )
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = origins,
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"]
+)
 
 #Register Routers
 app.include_router(admin.router)
@@ -36,7 +46,7 @@ app.include_router(admin.router)
 #create database table
 models.Base.metadata.create_all(bind = database.engine)
 
-@app.post("/singup",response_model=schemas.UserOut)
+@app.post("/signup",response_model=schemas.UserOut)
 def signup(user:schemas.UserCreate , db : Session = Depends(get_db)):
     """
         Endpoint for User Singnup in HMS

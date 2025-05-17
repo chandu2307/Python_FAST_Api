@@ -58,11 +58,9 @@
 </head>
 <body>
 
-  <!-- Replace the path below with a valid image path or use a hosted image URL -->
-  <img id="bg-image" src="C:\Users\admin\Desktop\Python_FAST_Api\hospital_management\frontend\media\successful-medical-team.jpg?auto=format&fit=crop&w=1950&q=80" alt="Background" />
+  <img id="bg-image" src="C:\Users\admin\Desktop\Python_FAST_Api\hospital_management\frontend\media\successful-medical-team.jpg" alt="Background" />
 
   <div id="auth-container" role="main" aria-labelledby="form-title" class="glass p-8 space-y-6">
-
     <h1 id="form-title" class="text-3xl font-bold mb-6 text-center text-white drop-shadow-lg">Hospital Management System</h1>
 
     <!-- Login Form -->
@@ -83,6 +81,14 @@
         class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" />
       <input type="text" id="signupFullName" placeholder="Full Name" required
         class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" />
+      <select id="signupRole" required
+        class="w-full px-4 py-3 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+        <option value="" disabled selected>Select Role</option>
+        <option value="admin">Admin</option>
+        <option value="doctor">Doctor</option>
+        <option value="patient">Patient</option>
+        <option value="nurse">Nurse</option>
+      </select>
       <button type="submit"
         class="w-full py-3 bg-purple-600 text-white rounded-md font-semibold hover:bg-purple-700 transition-colors">Sign Up</button>
     </form>
@@ -99,18 +105,15 @@
     <!-- Role-based UI Content -->
     <div id="roleContent" class="mt-6 hidden">
       <h2 class="text-xl font-semibold mb-2 text-white">Dashboard</h2>
-
       <div id="adminPanel" class="hidden p-4 mb-3 bg-purple-200 rounded">🔧 <strong>Admin Controls:</strong> Manage Users, Reports</div>
       <div id="doctorPanel" class="hidden p-4 mb-3 bg-green-200 rounded">🩺 <strong>Doctor Panel:</strong> View Patients, Appointments</div>
       <div id="patientPanel" class="hidden p-4 mb-3 bg-blue-200 rounded">👤 <strong>Patient Panel:</strong> View Your Medical Records</div>
-
       <button id="logoutBtn" class="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">Logout</button>
     </div>
-
   </div>
 
 <script>
-  const apiBase = 'http://127.0.0.1:8000'; // Change to your API URL
+  const apiBase = 'http://127.0.0.1:8000'; // Adjust if needed
 
   const loginForm = document.getElementById('loginForm');
   const signupForm = document.getElementById('signupForm');
@@ -118,7 +121,6 @@
   const toggleText = document.getElementById('toggleText');
   const message = document.getElementById('message');
 
-  // Role UI elements
   const roleContent = document.getElementById('roleContent');
   const adminPanel = document.getElementById('adminPanel');
   const doctorPanel = document.getElementById('doctorPanel');
@@ -132,13 +134,11 @@
       loginForm.classList.remove('hidden');
       toggleText.textContent = "Don't have an account?";
       toggleBtn.textContent = "Sign Up";
-      toggleBtn.setAttribute('aria-label', 'Switch to Signup');
     } else {
       loginForm.classList.add('hidden');
       signupForm.classList.remove('hidden');
       toggleText.textContent = "Already have an account?";
       toggleBtn.textContent = "Login";
-      toggleBtn.setAttribute('aria-label', 'Switch to Login');
     }
   });
 
@@ -153,13 +153,11 @@
   function renderRoleBasedUI() {
     const role = localStorage.getItem('user_role');
     if (!role) return;
-
     loginForm.style.display = 'none';
     signupForm.style.display = 'none';
     toggleBtn.style.display = 'none';
     toggleText.style.display = 'none';
     roleContent.classList.remove('hidden');
-
     adminPanel.style.display = (role === 'admin') ? 'block' : 'none';
     doctorPanel.style.display = (role === 'doctor') ? 'block' : 'none';
     patientPanel.style.display = (role === 'patient') ? 'block' : 'none';
@@ -193,10 +191,12 @@
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ username, password }),
       });
+
       if (!res.ok) {
         const errData = await res.json();
         throw new Error(errData.detail || 'Login failed');
       }
+
       const data = await res.json();
       localStorage.setItem('access_token', data.access_token);
 
@@ -220,11 +220,13 @@
   signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     message.textContent = '';
+
     const username = document.getElementById('signupUsername').value.trim();
     const password = document.getElementById('signupPassword').value.trim();
     const full_name = document.getElementById('signupFullName').value.trim();
+    const role = document.getElementById('signupRole').value;
 
-    if (!username || !password || !full_name) {
+    if (!username || !password || !full_name || !role) {
       message.style.color = 'red';
       message.textContent = 'Please fill all fields.';
       return;
@@ -234,15 +236,18 @@
       const res = await fetch(`${apiBase}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, full_name }),
+        body: JSON.stringify({ username, password, full_name, role }),
       });
+
       if (!res.ok) {
         const errData = await res.json();
         throw new Error(errData.detail || 'Signup failed');
       }
+
       message.style.color = 'lightgreen';
       message.textContent = 'Signup successful! You can now login.';
       toggleBtn.click();
+
     } catch (err) {
       message.style.color = 'red';
       message.textContent = err.message;
