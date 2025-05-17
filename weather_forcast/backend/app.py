@@ -16,7 +16,11 @@ BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 weather_cache = TTLCache(maxsize=100 , ttl=6000)
 
-app = FastAPI()
+app = FastAPI(
+        title = "Weather Forecast",
+        description= "APIs for Weather Forecast",
+        version="0.0.0"
+    )
 
 origins = ["*"]
 
@@ -85,5 +89,6 @@ async def get_weather(city : str = Query(...,description="Enter City Name")):
 
 
 if __name__ == '__main__':
-    uvicorn.run("app:app", host="127.0.0.1", port = 8000, reload= True)
-  
+    HOST = os.getenv("HOST")
+    PORT = int(os.getenv("PORT"))
+    uvicorn.run("app:app", host= HOST, port = PORT, reload= True)
